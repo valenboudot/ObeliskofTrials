@@ -9,10 +9,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
 {
     // --- UI create room ---
     public TMP_InputField InputJoin;
-    public GameObject MaxPlayersPopup;
 
     // --- UI wait room ---
-    public GameObject LobbyPanel;
+    public GameObject CreatedLobbyPanel;
     public TMP_InputField RoomIDText;
     public Button StartGameButton;
     public GameObject PlaseWaitText;
@@ -22,14 +21,27 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public GameObject InvalidCodeText;
     public GameObject CopiedText;
 
-    // --- Pannels ---
-    public GameObject MainPanel;
-    public GameObject CreatePanel;
-    public GameObject JoinPanel;
-
     private const int ROOM_ID_LENGTH = 6;
     private const string GAME_SCENE = "TowerEntrance";
+    public UIManager uimanager;
 
+    public void CreateRoomWithMaxPlayers(int maxPlayers)
+    {
+        byte maxPlayersByte = (byte)Mathf.Clamp(maxPlayers, 2, 4);
+
+        string roomID = GenerateRandomRoomID(ROOM_ID_LENGTH);
+
+        RoomOptions roomOptions = new RoomOptions()
+        {
+            IsVisible = true,
+            IsOpen = true,
+            MaxPlayers = maxPlayersByte
+        };
+
+        PhotonNetwork.CreateRoom(roomID, roomOptions);
+
+        uimanager.CloseCreateRoomPopup();
+    }
 
     private string GenerateRandomRoomID(int length)
     {
@@ -60,7 +72,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"¡Entraste a la sala: {PhotonNetwork.CurrentRoom.Name}!");
 
-        LobbyPanel.SetActive(true);
+        CreatedLobbyPanel.SetActive(true);
 
         RoomIDText.text = $"{PhotonNetwork.CurrentRoom.Name}";
 
@@ -68,8 +80,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
         PlaseWaitText.gameObject.SetActive(!PhotonNetwork.IsMasterClient);
 
-        CreatePanel.SetActive(false);
-        JoinPanel.SetActive(false);
+        uimanager.CreatePanel.SetActive(false);
+        uimanager.JoinPanel.SetActive(false);
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
@@ -104,46 +116,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         GUIUtility.systemCopyBuffer = PhotonNetwork.CurrentRoom.Name;
         Debug.Log($"ID de sala copiado: {PhotonNetwork.CurrentRoom.Name}");
         StartCoroutine(ShowWarningTemporarily(1f, CopiedText));
-    }
-
-    public void CreateRoomBotton()
-    {
-        CreatePanel.SetActive(true);
-        MainPanel.SetActive(false);
-    }
-
-    public void JoinRoomBotton()
-    {
-        JoinPanel.SetActive(true);
-        MainPanel.SetActive(false);
-    }
-
-    public void OpenCreateRoomPopup()
-    {
-        MaxPlayersPopup.SetActive(true);
-    }
-
-    public void CloseCreateRoomPopup()
-    {
-        MaxPlayersPopup.SetActive(false);
-    }
-
-    public void CreateRoomWithMaxPlayers(int maxPlayers)
-    {
-        byte maxPlayersByte = (byte)Mathf.Clamp(maxPlayers, 2, 4); 
-
-        string roomID = GenerateRandomRoomID(ROOM_ID_LENGTH);
-
-        RoomOptions roomOptions = new RoomOptions()
-        {
-            IsVisible = true,
-            IsOpen = true,
-            MaxPlayers = maxPlayersByte
-        };
-
-        PhotonNetwork.CreateRoom(roomID, roomOptions);
-
-        CloseCreateRoomPopup();
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
