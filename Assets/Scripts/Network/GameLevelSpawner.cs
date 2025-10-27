@@ -6,21 +6,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de CharacterSpawner
+public class GameLevelSpawner : MonoBehaviourPunCallbacks
 {
-    // --- VARIABLES DE TU ANTIGUO CHARACTERSPAWNER ---
     [Header("Player Prefab")]
-    [Tooltip("El único prefab de jugador (debe estar en Resources).")]
     public GameObject playerPrefab;
 
     [Header("Configuración de Spawn Points")]
-    [Tooltip("Objeto padre que contiene todos los puntos de spawn.")]
     public Transform spawnPointsContainer;
     private const string SPAWN_OCCUPIED_KEY = "SpawnUsed";
     private Transform[] availableSpawnPoints;
 
-    // --- VARIABLES COPIADAS DEL SERVERMANAGER ---
-    [Header("Objetos Estáticos (Solo MasterClient)")]
+    [Header("Objetos Estáticos")]
     public GameObject wandPrefab;
     public Transform wandSpawn;
 
@@ -38,11 +34,9 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
     [Header("Spawns por lista - SOLO MASTER")]
     public List<SpawnSet> networkSpawns = new List<SpawnSet>();
 
-    // --- SETUP Y LIFECYCLE ---
 
     void Awake()
     {
-        // La lógica de Awake() para llenar el array availableSpawnPoints se mantiene
         if (spawnPointsContainer != null)
         {
             availableSpawnPoints = spawnPointsContainer.GetComponentsInChildren<Transform>()
@@ -52,7 +46,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
-    // Suscripción a eventos de escena para la instanciación
     public override void OnEnable()
     {
         base.OnEnable();
@@ -64,17 +57,12 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // ----------------------------------------------------------------------
-    // LÓGICA DE INSTANCIACIÓN PRINCIPAL
-    // ----------------------------------------------------------------------
-
-    public void InstantiateMyCharacterAndItems() // Función principal del nivel
+    public void InstantiateMyCharacterAndItems()
     {
-        // 1. Instanciar el jugador (Lógica de tu antiguo CharacterSpawner)
         if (playerPrefab != null)
         {
             Transform spawnPoint = GetRandomFreeSpawnPoint();
-            // ... (Lógica de instanciación del playerPrefab en el spawnPoint) ...
+            // Lógica de instanciación del playerPrefab en el spawnPoint
 
             PhotonNetwork.Instantiate(
                 playerPrefab.name,
@@ -82,7 +70,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
                 spawnPoint ? spawnPoint.rotation : Quaternion.identity
             );
 
-            // Reclamar el spawn point
             if (spawnPoint != transform)
             {
                 int index = System.Array.IndexOf(availableSpawnPoints, spawnPoint);
@@ -90,14 +77,12 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
             }
         }
 
-        // 2. Instanciar Ítems y Sets (Lógica del ServerManager)
         SpawnWand();
         SpawnFromSets();
     }
 
     private void SpawnWand()
     {
-        // Instanciar la varita (solo MasterClient)
         if (PhotonNetwork.IsMasterClient && wandPrefab != null)
         {
             if (ValidatePrefab(wandPrefab, "Wand"))
@@ -113,7 +98,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
 
     private void SpawnFromSets()
     {
-        // Instanciar sets de enemigos/ítems (solo MasterClient)
         if (!PhotonNetwork.IsMasterClient) return;
 
         foreach (var set in networkSpawns)
@@ -139,28 +123,16 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
         }
     }
 
-    // ----------------------------------------------------------------------
-    // CALLBACK DE INICIO DE JUEGO (Disparador)
-    // ----------------------------------------------------------------------
-
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // La constante GAME_SCENE debe estar accesible (ej: en RoomManager)
-        // Usamos el nombre de la escena de juego que usaste en RoomManager.cs
         if (scene.name == "TowerEntrance")
         {
-            InstantiateMyCharacterAndItems(); // Llama a la nueva función
+            InstantiateMyCharacterAndItems();
         }
     }
 
-    // ----------------------------------------------------------------------
-    // FUNCIONES AUXILIARES (Validación y Spawn Points)
-    // ----------------------------------------------------------------------
-
     private bool ValidatePrefab(GameObject prefab, string label)
     {
-        // Copia y pega la función ValidatePrefab completa del ServerManager aquí
-        // Es vital para verificar el PhotonView y la carpeta Resources.
         if (prefab == null || prefab.GetComponent<PhotonView>() == null || Resources.Load<GameObject>(prefab.name) == null)
         {
             Debug.LogError($"[{label}] Error de Prefab: Faltan componentes, no está en Resources, o es un objeto de escena.");
@@ -171,14 +143,11 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks // Renombrado de Chara
 
     private Transform GetRandomFreeSpawnPoint()
     {
-        // (La lógica completa de GetRandomFreeSpawnPoint va aquí)
-        // ...
-        return null; // Retorno de ejemplo
+        return null;
     }
 
     private void ClaimSpawnPoint(int index)
     {
-        // (La lógica completa de ClaimSpawnPoint va aquí)
-        // ...
+
     }
 }

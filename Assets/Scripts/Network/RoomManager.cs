@@ -187,4 +187,16 @@ public class RoomManager : MonoBehaviourPunCallbacks
             }
         }
     }
+
+    public void LeaveRoom()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        CreatedLobbyPanel.SetActive(false);
+
+        uimanager.MainMenuPanel.SetActive(true);
+    }
 }
