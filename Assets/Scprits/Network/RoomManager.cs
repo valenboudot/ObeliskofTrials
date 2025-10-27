@@ -1,9 +1,10 @@
-using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -15,6 +16,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public TMP_InputField RoomIDText;
     public Button StartGameButton;
     public GameObject PlaseWaitText;
+
+    // --- UI Lista de Jugadores ---
+    public RectTransform PlayerListContent; // El panel vacío que contendrá los nombres
+    public GameObject PlayerListItemPrefab;
+    private Dictionary<int, GameObject> playerListItems = new Dictionary<int, GameObject>();
 
     // --- Texts ---
     public GameObject LowNumberOfPlayersText;
@@ -82,6 +88,20 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
         uimanager.CreatePanel.SetActive(false);
         uimanager.JoinPanel.SetActive(false);
+
+        UpdatePlayerList();
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"{newPlayer.NickName} se ha unido a la sala.");
+        UpdatePlayerList();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log($"{otherPlayer.NickName} ha abandonado la sala.");
+        UpdatePlayerList();
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
@@ -96,6 +116,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.CurrentRoom.PlayerCount >= 2)
             {
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                Debug.Log("Sala cerrada perras.");
+
                 PhotonNetwork.LoadLevel(GAME_SCENE);
             }
             else
@@ -132,5 +155,36 @@ public class RoomManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(duration);
 
         Mensaje.SetActive(false);
+    }
+
+
+    private void UpdatePlayerList()
+    {
+        foreach (var item in playerListItems.Values)
+        {
+            Destroy(item);
+        }
+        playerListItems.Clear();
+
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+            {
+                GameObject listItem = Instantiate(PlayerListItemPrefab, PlayerListContent);
+
+                TMP_Text textComponent = listItem.GetComponent<TMP_Text>();
+
+                if (player.IsMasterClient)
+                {
+                    textComponent.text = $"{player.NickName} (Master)";
+                }
+                else
+                {
+                    textComponent.text = player.NickName;
+                }
+
+                playerListItems.Add(player.ActorNumber, listItem);
+            }
+        }
     }
 }

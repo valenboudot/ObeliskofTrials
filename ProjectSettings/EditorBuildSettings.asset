@@ -13,5 +13,6 @@ EditorBuildSettings:
     guid: 2fe405a3dd9d3104c8d3b61228eee201
   - enabled: 1
     path: Assets/Scenes/TowerEntrance.unity
-    guid: c7e3394cd8b6ce2479ade5f94f420df9
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
