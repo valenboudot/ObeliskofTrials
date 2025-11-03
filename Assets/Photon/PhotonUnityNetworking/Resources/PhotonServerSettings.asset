@@ -50,9 +50,6 @@ MonoBehaviour:
   - RPC_SetReleased
   - RPC_StartJumpBuff
   - RPC_RequestSceneObjectOwnership
-  - Rpc_ExecuteFail
-  - Rpc_ExecuteSuccess
-  - Rpc_RegisterButtonPress
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
