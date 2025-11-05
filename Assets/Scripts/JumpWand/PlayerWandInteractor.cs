@@ -16,7 +16,6 @@ public class PlayerWandInteractor : MonoBehaviourPun
     [SerializeField] private Camera cam; 
 
     [Header("Uso")]
-    [Tooltip("Si true, la varita se consume al usarla 1 vez. Si false, la podés usar infinitas veces.")]
     [SerializeField] private bool consumeOnUse = false; 
 
     private void Start()
