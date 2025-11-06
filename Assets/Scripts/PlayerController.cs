@@ -6,6 +6,7 @@ using Photon.Realtime;
 [RequireComponent(typeof(PhotonView))]
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+    public bool ItsFrozen = false;
     [Header("Movimiento")]
     [Tooltip("Velocidad base en m/s")]
     public float moveSpeed = 5f;
@@ -91,9 +92,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         
         if (!photonView.IsMine) return;
 
-        HandleMouseLook();
-        HandleMovement();
-        HandleJump();
+        if (!ItsFrozen)
+        {
+            HandleMouseLook();
+            HandleMovement();
+            HandleJump();
+        }
     }
 
     private void HandleMouseLook()

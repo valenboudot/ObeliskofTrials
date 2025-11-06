@@ -53,6 +53,8 @@ MonoBehaviour:
   - Rpc_AnimateButton
   - Rpc_OpenTheDoor
   - Rpc_RequestPressButton
+  - RPC_StartFreeze
+  - RPC_DrawFreezeBeam
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

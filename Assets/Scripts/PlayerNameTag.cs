@@ -29,20 +29,20 @@ public class PlayerNameTag : MonoBehaviourPun
 
     private void OnEnable()
     {
-        
-        string nick = photonView.Owner != null ? photonView.Owner.NickName : "Player";
-        nameText.text = string.IsNullOrEmpty(nick) ? "Player" : nick;
+        if (!photonView.IsMine)
+        {
+            string nick = photonView.Owner != null ? photonView.Owner.NickName : "Player";
+            nameText.text = string.IsNullOrEmpty(nick) ? "Player" : nick;
 
-        if (tintLocal)
-            nameText.color = photonView.IsMine ? localColor : remoteColor;
+            if (tintLocal)
+                nameText.color = photonView.IsMine ? localColor : remoteColor;
+        }
     }
 
     private void LateUpdate()
     {
-        
         if (target) transform.position = target.position + offset;
 
-        
         if (billboardToCamera && Camera.main != null)
             transform.rotation = Quaternion.LookRotation(transform.position - Camera.main.transform.position);
     }
