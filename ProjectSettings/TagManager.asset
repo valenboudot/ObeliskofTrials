@@ -3,15 +3,19 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ground
+  - Bullet
+  - Caja
+  - cubo magico
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Caja
   - Water
   - UI
-  - 
+  - cubo magico
   - 
   - 
   - 

@@ -16,7 +16,7 @@ MonoBehaviour:
     AppIdRealtime: 5e704c83-b141-46e0-ad89-84152ee03011
     AppIdFusion: 
     AppIdChat: 
-    AppIdVoice: 
+    AppIdVoice: a57f0d71-85c3-46a1-9244-3bc278757c9f
     AppVersion: 
     UseNameServer: 1
     FixedRegion: 
@@ -34,11 +34,30 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - CantHearYou
+  - ChangeColour
   - ClickRpc
   - DestroyRpc
+  - HeresWhy
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - RPC_ActivateButton
+  - RPC_LocalDestroyTargetByPath
+  - RPC_RequestDestroy
+  - RPC_SetHasWand
+  - RPC_SetHeld
+  - RPC_SetReleased
+  - RPC_StartJumpBuff
+  - RPC_RequestSceneObjectOwnership
+  - Rpc_AnimateButton
+  - Rpc_OpenTheDoor
+  - Rpc_RequestPressButton
+  - RPC_StartFreeze
+  - RPC_DrawFreezeBeam
+  - RPC_SetHasIceWand
+  - RPC_SetHasJumpWand
+  - RPC_DrawJumpBeam
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1
