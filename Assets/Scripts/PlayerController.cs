@@ -48,7 +48,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private CharacterController controller;
     private Vector3 velocity;     
-    private float pitch;         
+    private float pitch;
+
+    private NetworkedMovingPlatform currentPlatform;
+
+    public bool ItsFrozen = false;
 
     private bool IsGrounded => controller.isGrounded;
 
@@ -56,18 +60,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         controller = GetComponent<CharacterController>();
 
-        
         if (playerCamera == null && cameraHolder != null)
             playerCamera = cameraHolder.GetComponentInChildren<Camera>();
         if (audioListener == null && playerCamera != null)
             audioListener = playerCamera.GetComponent<AudioListener>();
 
-        
         if (!photonView.IsMine)
         {
             if (playerCamera) playerCamera.enabled = false;
             if (audioListener) audioListener.enabled = false;
-            
         }
     }
 
@@ -88,12 +89,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        
         if (!photonView.IsMine) return;
 
-        HandleMouseLook();
-        HandleMovement();
-        HandleJump();
+        if (!ItsFrozen)
+        {
+            HandleMouseLook();
+            HandleMovement();
+            HandleJump();
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (currentPlatform != null)
+        {
+            controller.Move(currentPlatform.MovementDelta);
+        }
     }
 
     private void HandleMouseLook()
@@ -103,10 +114,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-     
         transform.Rotate(Vector3.up * mouseX);
 
-        
         pitch -= mouseY;
         pitch = Mathf.Clamp(pitch, -verticalLookLimit, verticalLookLimit);
         ApplyCameraPitch();
@@ -134,10 +143,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Vector3 move = transform.TransformDirection(input);
         float speed = moveSpeed * (Input.GetKey(KeyCode.LeftShift) ? sprintMultiplier : 1f);
 
-       
         controller.Move(move * speed * Time.deltaTime);
 
-     
         if (IsGrounded && velocity.y < 0f) velocity.y = groundedStickForce;
         else velocity.y += gravity * Time.deltaTime;
 
@@ -158,35 +165,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Cursor.visible = !locked;
     }
 
-   
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        
         if (!photonView.IsMine) return;
 
-       
         if (((1 << hit.gameObject.layer) & pushableLayers) == 0)
             return;
 
-        
         if (Mathf.Abs(hit.normal.y) > maxVerticalNormalForPush)
             return;
 
-        
         Rigidbody rb = hit.collider.attachedRigidbody;
         if (rb == null || rb.isKinematic) return;
 
-       
         Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
         if (pushDir.sqrMagnitude < 0.0001f) return;
         pushDir.Normalize();
 
-        
         float horizSpeed = new Vector3(controller.velocity.x, 0f, controller.velocity.z).magnitude;
         float speed01 = Mathf.Clamp01(horizSpeed / (moveSpeed * sprintMultiplier));
         float force = pushImpulse * speedToForce.Evaluate(speed01);
 
-       
         PhotonView targetPv = rb.GetComponent<PhotonView>();
         if (targetPv != null && requestOwnershipBeforePush && !targetPv.AmOwner)
         {
@@ -194,16 +193,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
             targetPv.RequestOwnership();
         }
 
-        
         rb.AddForce(pushDir * force, ForceMode.Impulse);
     }
-
     
     private void OnCollisionStay(Collision collision) { }
-
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(transform.position + Vector3.up * 0.1f, transform.forward * 1.5f);
+    }
+
+    public void SetCurrentPlatform(NetworkedMovingPlatform platform)
+    {
+        currentPlatform = platform;
+    }
+
+    public void ClearCurrentPlatform(NetworkedMovingPlatform platform)
+    {
+        if (currentPlatform == platform)
+        {
+            currentPlatform = null;
+        }
     }
 }
