@@ -7,29 +7,20 @@ using System.Collections.Generic;
 public class ButtonTrigger : MonoBehaviourPun
 {
     [Header("Objetivo a Mover (con PhotonView)")]
-    [Tooltip("El objeto que se moverá (puerta, plataforma, etc.). DEBE tener PhotonView y PhotonTransformView.")]
     public GameObject targetToMove;
 
     [Header("Configuración de Movimiento")]
-    [Tooltip("La dirección en la que se moverá el objeto (ej: (0, 1, 0) para arriba)")]
     public Vector3 moveDirection = Vector3.up;
-    [Tooltip("La distancia total que se moverá el objeto en unidades de Unity")]
     public float moveDistance = 2f;
-    [Tooltip("La velocidad a la que el objeto se mueve y regresa")]
     public float moveSpeed = 1.5f;
 
     [Header("Condición de Activación (Placa de Presión)")]
-    [Tooltip("Tags requeridos para el objeto que presiona (ej: 'Caja', 'Player'). Si la lista está vacía, CUALQUIER tag es válido.")]
     public List<string> triggerTags = new List<string>();
-    [Tooltip("Exigir que el objeto tenga Rigidbody para activarse.")]
     public bool requireRigidbody = true;
-    [Tooltip("Evitar re-disparos muy seguidos.")]
     public float cooldown = 0.1f;
 
     [Header("Feedback Visual del Botón")]
-    [Tooltip("Mueve el botón hacia abajo al activarse.")]
     public float pressOffset = 0.05f;
-    [Tooltip("Tiempo de animación de hundimiento.")]
     public float pressAnimTime = 0.1f;
 
     private int _activatorCount = 0;
@@ -47,7 +38,7 @@ public class ButtonTrigger : MonoBehaviourPun
 
         if (targetToMove == null)
         {
-            Debug.LogError("¡'targetToMove' no está asignado en " + gameObject.name + "!", this);
+            Debug.LogError("targetToMove no está asignado en " + gameObject.name + "!", this);
             return;
         }
 
@@ -57,7 +48,7 @@ public class ButtonTrigger : MonoBehaviourPun
         if (targetToMove.GetComponent<PhotonView>() == null ||
             (targetToMove.GetComponent<PhotonTransformView>() == null && targetToMove.GetComponent<PhotonTransformViewClassic>() == null))
         {
-            Debug.LogError("¡El 'targetToMove' (" + targetToMove.name + ") DEBE tener un PhotonView y un PhotonTransformView (o Classic) para funcionar!", targetToMove);
+            Debug.LogError("¡El " + targetToMove.name + " tiene que tener un PhotonView y un PhotonTransformView para funcionar", targetToMove);
         }
     }
 

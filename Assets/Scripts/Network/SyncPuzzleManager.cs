@@ -11,24 +11,18 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
     public GameObject objectToDeactivate;
     public float activationWindow = 2f;
 
-    private bool triggerAActivated = false;
-    private bool triggerBActivated = false;
-    private Coroutine timerCoroutine;
+    private double triggerATime = 0;
+    private double triggerBTime = 0;
 
     private bool isDoorOpen = false;
 
     public override void OnEnable()
     {
         base.OnEnable();
-
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
+        if (!PhotonNetwork.IsMasterClient) return;
 
         if (triggerA != null)
             triggerA.OnInteracted += OnTriggerAActivated;
-
         if (triggerB != null)
             triggerB.OnInteracted += OnTriggerBActivated;
     }
@@ -36,68 +30,60 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
     public override void OnDisable()
     {
         base.OnDisable();
-
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
+        if (!PhotonNetwork.IsMasterClient) return;
 
         if (triggerA != null)
             triggerA.OnInteracted -= OnTriggerAActivated;
-
         if (triggerB != null)
             triggerB.OnInteracted -= OnTriggerBActivated;
     }
 
-    private void OnTriggerAActivated()
+    private void OnTriggerAActivated(PhotonMessageInfo info)
     {
-        triggerAActivated = true;
+        triggerATime = info.SentServerTime;
         CheckTriggers();
     }
 
-    private void OnTriggerBActivated()
+    private void OnTriggerBActivated(PhotonMessageInfo info)
     {
-        triggerBActivated = true;
+        triggerBTime = info.SentServerTime;
         CheckTriggers();
     }
 
     private void CheckTriggers()
     {
-        if (triggerAActivated && triggerBActivated)
+        if (triggerATime <= 0 || triggerBTime <= 0)
         {
-            if (timerCoroutine != null)
-            {
-                StopCoroutine(timerCoroutine);
-                timerCoroutine = null;
-            }
+            return;
+        }
+
+        double timeDifference = System.Math.Abs(triggerATime - triggerBTime);
+
+        Debug.Log(" Diferencia de " + timeDifference + " MS");
+        Debug.Log(" A "+ triggerATime+" B "+triggerBTime+" ");
+
+        if (timeDifference <= activationWindow)
+        {
             ExecuteAction();
-            ResetTriggers();
         }
         else
         {
-            if (timerCoroutine == null)
-                timerCoroutine = StartCoroutine(ActivationTimer());
-        }
-    }
 
-    private IEnumerator ActivationTimer()
-    {
-        yield return new WaitForSeconds(activationWindow);
+        }
+
         ResetTriggers();
-        timerCoroutine = null;
     }
 
     private void ExecuteAction()
     {
         isDoorOpen = true;
-
         photonView.RPC("Rpc_OpenTheDoor", RpcTarget.All);
     }
 
     private void ResetTriggers()
     {
-        triggerAActivated = false;
-        triggerBActivated = false;
+        triggerATime = 0;
+        triggerBTime = 0;
     }
 
     [PunRPC]
@@ -107,7 +93,6 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
         {
             objectToDeactivate.SetActive(false);
         }
-
         isDoorOpen = true;
     }
 

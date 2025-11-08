@@ -14,7 +14,7 @@ public class ButtonSyncTrigger : MonoBehaviourPun
     private bool playerInRange = false;
     private bool isMoving = false;
 
-    public event Action OnInteracted;
+    public event Action<PhotonMessageInfo> OnInteracted;
 
     private void Start()
     {
@@ -51,26 +51,29 @@ public class ButtonSyncTrigger : MonoBehaviourPun
     {
         if (playerInRange && !isMoving && Input.GetKeyDown(interactKey))
         {
-            photonView.RPC("Rpc_RequestPressButton", RpcTarget.MasterClient);
+            photonView.RPC(nameof(Rpc_RequestPressButton), RpcTarget.MasterClient);
+
+            StartCoroutine(AnimateButtonCoroutine());
         }
     }
 
     [PunRPC]
-    private void Rpc_RequestPressButton()
+    private void Rpc_RequestPressButton(PhotonMessageInfo info)
     {
         if (isMoving)
         {
             return;
         }
 
-        OnInteracted?.Invoke();
+        OnInteracted?.Invoke(info);
 
-        photonView.RPC("Rpc_AnimateButton", RpcTarget.All);
+        photonView.RPC(nameof(Rpc_AnimateButton), RpcTarget.Others);
     }
 
     [PunRPC]
     private void Rpc_AnimateButton()
     {
+        if (isMoving) return;
         StartCoroutine(AnimateButtonCoroutine());
     }
 

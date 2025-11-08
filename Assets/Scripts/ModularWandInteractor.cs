@@ -52,7 +52,7 @@ public class ModularWandInteractor : MonoBehaviourPun
         UpdateWandUI();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (!photonView.IsMine) return;
 
