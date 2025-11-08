@@ -1,6 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Collider))]
 public class ButtonTrigger : MonoBehaviourPun
@@ -18,12 +19,10 @@ public class ButtonTrigger : MonoBehaviourPun
     public float moveSpeed = 1.5f;
 
     [Header("Condición de Activación (Placa de Presión)")]
-    [Tooltip("Tag requerido para el objeto que presiona (ej: 'Caja', 'Player'). Déjalo vacío para ignorar tag.")]
-    public string triggerTag = "Player";
+    [Tooltip("Tags requeridos para el objeto que presiona (ej: 'Caja', 'Player'). Si la lista está vacía, CUALQUIER tag es válido.")]
+    public List<string> triggerTags = new List<string>();
     [Tooltip("Exigir que el objeto tenga Rigidbody para activarse.")]
     public bool requireRigidbody = true;
-    [Tooltip("Capas válidas para presionar (0 = todas).")]
-    public LayerMask validLayers = ~0;
     [Tooltip("Evitar re-disparos muy seguidos.")]
     public float cooldown = 0.1f;
 
@@ -66,16 +65,22 @@ public class ButtonTrigger : MonoBehaviourPun
     {
         if (Time.time < _nextAllowedTime) return false;
         if (requireRigidbody && other.attachedRigidbody == null) return false;
-        if (validLayers != 0 && (validLayers.value & (1 << other.gameObject.layer)) == 0) return false;
-        if (!string.IsNullOrEmpty(triggerTag) && !other.CompareTag(triggerTag)) return false;
+
+        if (!IsValidTag(other.tag)) return false;
 
         return true;
+    }
+
+    private bool IsValidTag(string objectTag)
+    {
+        if (triggerTags.Count == 0) return true;
+
+        return triggerTags.Contains(objectTag);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!PhotonNetwork.IsMasterClient) return;
-
         if (!IsValidActivator(other)) return;
 
         _activatorCount++;
@@ -92,8 +97,8 @@ public class ButtonTrigger : MonoBehaviourPun
         if (!PhotonNetwork.IsMasterClient) return;
 
         if (requireRigidbody && other.attachedRigidbody == null) return;
-        if (validLayers != 0 && (validLayers.value & (1 << other.gameObject.layer)) == 0) return;
-        if (!string.IsNullOrEmpty(triggerTag) && !other.CompareTag(triggerTag)) return;
+
+        if (!IsValidTag(other.tag)) return;
 
         _activatorCount--;
 
