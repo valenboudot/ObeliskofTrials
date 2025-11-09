@@ -143,4 +143,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cb73e1030b1422ca3b602cb7b1b1e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  typeOfWand: 0
   onlyLocalPlayerCanTrigger: 1
