@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events; // 1. ¡IMPORTANTE! Añadir esto
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -8,14 +9,15 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
 {
     public ButtonSyncTrigger triggerA;
     public ButtonSyncTrigger triggerB;
-    public GameObject objectToDeactivate;
     public float activationWindow = 2f;
+
+    public UnityEvent OnPuzzleSolved;
 
     private double triggerATime = 0;
     private double triggerBTime = 0;
-
     private bool isDoorOpen = false;
 
+    #region Enable/Disable y Trigger Handlers
     public override void OnEnable()
     {
         base.OnEnable();
@@ -49,6 +51,7 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
         triggerBTime = info.SentServerTime;
         CheckTriggers();
     }
+    #endregion
 
     private void CheckTriggers()
     {
@@ -59,16 +62,9 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
 
         double timeDifference = System.Math.Abs(triggerATime - triggerBTime);
 
-        Debug.Log(" Diferencia de " + timeDifference + " MS");
-        Debug.Log(" A "+ triggerATime+" B "+triggerBTime+" ");
-
         if (timeDifference <= activationWindow)
         {
             ExecuteAction();
-        }
-        else
-        {
-
         }
 
         ResetTriggers();
@@ -76,8 +72,10 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
 
     private void ExecuteAction()
     {
+        if (isDoorOpen) return;
+
         isDoorOpen = true;
-        photonView.RPC("Rpc_OpenTheDoor", RpcTarget.All);
+        photonView.RPC("Rpc_ExecutePuzzleAction", RpcTarget.AllBuffered); // Cambiado el nombre para más claridad
     }
 
     private void ResetTriggers()
@@ -87,12 +85,13 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void Rpc_OpenTheDoor()
+    private void Rpc_ExecutePuzzleAction()
     {
-        if (objectToDeactivate != null)
+        if (OnPuzzleSolved != null)
         {
-            objectToDeactivate.SetActive(false);
+            OnPuzzleSolved.Invoke();
         }
+
         isDoorOpen = true;
     }
 
@@ -100,7 +99,7 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isDoorOpen)
         {
-            photonView.RPC("Rpc_OpenTheDoor", newPlayer);
+            photonView.RPC("Rpc_ExecutePuzzleAction", newPlayer);
         }
     }
 }

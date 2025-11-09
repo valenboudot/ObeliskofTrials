@@ -59,6 +59,7 @@ MonoBehaviour:
   - RPC_SetHasJumpWand
   - RPC_DrawJumpBeam
   - RPC_SetPressedState
+  - Rpc_ExecutePuzzleAction
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
