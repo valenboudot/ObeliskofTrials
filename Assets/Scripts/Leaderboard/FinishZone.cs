@@ -5,7 +5,7 @@ using Photon.Pun;
 public class FinishZone : MonoBehaviour
 {
     [SerializeField] string leaderboardKey = "global_highscore";
-    [SerializeField] bool submitToGlobal = false; // <-- deja en false para no subir
+    [SerializeField] bool submitToGlobal = true; // <-- deja en false para no subir
     bool consumed;
 
     void OnTriggerEnter(Collider other)
@@ -28,7 +28,12 @@ public class FinishZone : MonoBehaviour
             int score = -ms;
             LeaderboardService.SubmitScore(score, leaderboardKey, ok =>
             {
-                if (ok) Debug.Log("[Leaderboard] Tiempo subido (silencioso).");
+                if (ok)
+                {
+                    Debug.Log("[Leaderboard] Tiempo subido (silencioso).");
+                    LeaderboardEvents.OnScoreSubmitted?.Invoke();
+                }
+                
             });
         }
     }
