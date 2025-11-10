@@ -1148,6 +1148,7 @@ MonoBehaviour:
   LowNumberOfPlayersText: {fileID: 1485149402}
   InvalidCodeText: {fileID: 2003086570}
   CopiedText: {fileID: 1438258801}
+  GAME_SCENE: TowerEntrance
   uimanager: {fileID: 1572095901}
 --- !u!1 &578858349
 GameObject:

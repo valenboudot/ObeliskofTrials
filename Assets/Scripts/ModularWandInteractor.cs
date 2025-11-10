@@ -87,6 +87,10 @@ public class ModularWandInteractor : MonoBehaviourPun
             {
                 ActivateSelfJumpEffect();
             }
+            if (hasIceWand)
+            {
+                ActivateSelfFreezeEffect();
+            }
         }
     }
 
@@ -97,6 +101,13 @@ public class ModularWandInteractor : MonoBehaviourPun
         targetPV.RPC("RPC_StartFreeze", RpcTarget.All, now, freezeDuration);
 
         photonView.RPC(nameof(RPC_DrawFreezeBeam), RpcTarget.All, photonView.ViewID, targetPV.ViewID);
+    }
+
+    private void ActivateSelfFreezeEffect()
+    {
+        var now = PhotonNetwork.Time;
+
+        photonView.RPC("RPC_StartFreeze", RpcTarget.All, now, freezeDuration);
     }
 
     private void ActivateJumpEffect(PhotonView targetPV)

@@ -13,7 +13,7 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
 
     [Header("Configuración de Spawn Points")]
     public Transform spawnPointsContainer;
-    private const string SPAWN_OCCUPIED_KEY = "SpawnUsed"; // Clave para las Propiedades de la Sala
+    private const string SPAWN_OCCUPIED_KEY = "SpawnUsed";
     private Transform[] availableSpawnPoints;
 
     [System.Serializable]
@@ -40,7 +40,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
         }
         else
         {
-            // Fallback si no hay contenedor, usa un array vacío
             availableSpawnPoints = new Transform[0];
             Debug.LogWarning("SpawnPointsContainer no está asignado. Los jugadores aparecerán en (0,0,0).");
         }
@@ -65,17 +64,14 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
         {
             Transform spawnPoint = GetRandomFreeSpawnPoint();
 
-            // Lógica de instanciación del playerPrefab en el spawnPoint
             PhotonNetwork.Instantiate(
                 playerPrefab.name,
-                spawnPoint ? spawnPoint.position : Vector3.zero, // Usa Vector3.zero si el spawn es nulo
+                spawnPoint ? spawnPoint.position : Vector3.zero,
                 spawnPoint ? spawnPoint.rotation : Quaternion.identity
             );
 
-            // Si el spawnPoint es válido y no es el transform de este spawner...
             if (spawnPoint != null && spawnPoint != transform)
             {
-                // ...intenta reclamarlo.
                 int index = System.Array.IndexOf(availableSpawnPoints, spawnPoint);
                 if (index != -1)
                 {
@@ -121,10 +117,7 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
             PhotonNetwork.CurrentRoom.SetCustomProperties(props);
         }
 
-        if (scene.name == "TowerEntrance")
-        {
-            InstantiateMyCharacterAndItems();
-        }
+        InstantiateMyCharacterAndItems();
     }
 
     private bool ValidatePrefab(GameObject prefab, string label)

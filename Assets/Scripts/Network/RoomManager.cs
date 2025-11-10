@@ -28,7 +28,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public GameObject CopiedText;
 
     private const int ROOM_ID_LENGTH = 6;
-    private const string GAME_SCENE = "TowerEntrance";
+    public string GAME_SCENE = "TowerEntrance";
     public UIManager uimanager;
 
     public void CreateRoomWithMaxPlayers(int maxPlayers)

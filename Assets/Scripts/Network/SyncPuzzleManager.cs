@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events; // 1. ¡IMPORTANTE! Añadir esto
+using UnityEngine.Events;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -75,7 +75,7 @@ public class SyncPuzzleManager : MonoBehaviourPunCallbacks
         if (isDoorOpen) return;
 
         isDoorOpen = true;
-        photonView.RPC("Rpc_ExecutePuzzleAction", RpcTarget.AllBuffered); // Cambiado el nombre para más claridad
+        photonView.RPC("Rpc_ExecutePuzzleAction", RpcTarget.AllBuffered);
     }
 
     private void ResetTriggers()

@@ -38,7 +38,6 @@ public class ButtonTrigger : MonoBehaviourPun
 
         if (targetToMove == null)
         {
-            Debug.LogError("targetToMove no está asignado en " + gameObject.name + "!", this);
             return;
         }
 
