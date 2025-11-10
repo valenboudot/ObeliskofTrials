@@ -6470,8 +6470,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.4325444, z: 1}
-  m_Center: {x: 0, y: 0.21627213, z: 0}
+  m_Size: {x: 1, y: 2.1302433, z: 1}
+  m_Center: {x: 0, y: 0.5651212, z: 0}
 --- !u!23 &1119310643
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6570,7 +6570,7 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 1
   OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
