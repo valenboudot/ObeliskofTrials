@@ -28,7 +28,7 @@ public class RankingView : MonoBehaviour
     System.Collections.IEnumerator RefreshWhenReady()
     {
         while (!LootLockerBootstrap.SessionStarted) yield return null;
-        ui.Refresh(); // al abrir la pantalla
+        ui.Refresh();
     }
 }
 

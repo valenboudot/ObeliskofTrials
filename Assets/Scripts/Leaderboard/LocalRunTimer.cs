@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using Photon.Pun;
 
-// Cuenta el tiempo de la corrida local (solo del jugador dueño).
 public class LocalRunTimer : MonoBehaviour
 {
     public static LocalRunTimer Instance { get; private set; }
@@ -12,8 +11,8 @@ public class LocalRunTimer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
 
     [Header("Auto-binding")]
-    [SerializeField] private string timerTextName = "LeaderboardText"; // nombre esperado
-    [SerializeField] private string timerTextTag = "TimerText";       // tag opcional
+    [SerializeField] private string timerTextName = "LeaderboardText"; 
+    [SerializeField] private string timerTextTag = "TimerText"; 
 
     private bool running;
     private double startNetworkTime;
@@ -25,10 +24,8 @@ public class LocalRunTimer : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Reenganchar al cargar escenas nuevas
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        // Intento inicial por si ya estoy en una escena con el TMP
         TryResolveText();
     }
 
@@ -40,7 +37,6 @@ public class LocalRunTimer : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Cuando cambia la escena, el viejo TMP ya no existe: resolvelo de nuevo
         timerText = null;
         TryResolveText();
     }
@@ -49,7 +45,6 @@ public class LocalRunTimer : MonoBehaviour
     {
         if (timerText != null) return;
 
-        // 1) Por Tag (rápido y confiable si lo configurás)
         if (!string.IsNullOrEmpty(timerTextTag))
         {
             var goByTag = SafeFindByTag(timerTextTag);
@@ -60,7 +55,6 @@ public class LocalRunTimer : MonoBehaviour
             }
         }
 
-        // 2) Por Nombre exacto
         if (!string.IsNullOrEmpty(timerTextName))
         {
             var goByName = GameObject.Find(timerTextName);
@@ -71,10 +65,9 @@ public class LocalRunTimer : MonoBehaviour
             }
         }
 
-        // 3) Heurística: el primer TMP visible con "Timer" o "Leader" en el nombre
         var allTmps = Object.FindObjectsByType<TextMeshProUGUI>(
-                 FindObjectsInactive.Include,   // incluye inactivos
-                 FindObjectsSortMode.None); // incluye inactivos
+                 FindObjectsInactive.Include, 
+                 FindObjectsSortMode.None);
         foreach (var t in allTmps)
         {
             string n = t.gameObject.name.ToLower();
@@ -85,7 +78,6 @@ public class LocalRunTimer : MonoBehaviour
             }
         }
 
-        // 4) Último recurso: cualquier TMP de la escena
         if (allTmps.Length > 0)
             timerText = allTmps[0];
     }
@@ -93,7 +85,7 @@ public class LocalRunTimer : MonoBehaviour
     private GameObject SafeFindByTag(string tag)
     {
         try { return GameObject.FindGameObjectWithTag(tag); }
-        catch { return null; } // por si el tag no existe en el proyecto
+        catch { return null; } 
     }
 
     public void SetTimerText(TextMeshProUGUI tmp) => timerText = tmp;
@@ -112,7 +104,6 @@ public class LocalRunTimer : MonoBehaviour
         running = true;
         startNetworkTime = PhotonNetwork.Time;
         pausedAt = 0;
-        // opcional: refrescar UI al empezar
         if (timerText) timerText.text = FormatTime(0);
     }
 

@@ -4,9 +4,9 @@ using UnityEngine;
 [RequireComponent(typeof(LeaderboardUI))]
 public class RankingAutoRefresher : MonoBehaviour
 {
-    [SerializeField] float firstDelay = 0.2f;  // pequeño respiro al habilitar
-    [SerializeField] float refreshEvery = 5f;  // intervalo de actualización
-    [SerializeField] float maxMinutes = 5f;    // por si lo dejan abierto
+    [SerializeField] float firstDelay = 0.2f; 
+    [SerializeField] float refreshEvery = 5f;  
+    [SerializeField] float maxMinutes = 5f;
 
     LeaderboardUI ui;
     Coroutine loop;
@@ -18,14 +18,11 @@ public class RankingAutoRefresher : MonoBehaviour
 
     IEnumerator Loop()
     {
-        // esperar login
         while (!LootLockerBootstrap.SessionStarted) yield return null;
 
-        // refresco inicial
         yield return new WaitForSeconds(firstDelay);
         ui.Refresh();
 
-        // refrescar cada X segundos mientras el panel esté activo
         float endAt = Time.time + maxMinutes * 60f;
         while (isActiveAndEnabled && Time.time < endAt)
         {

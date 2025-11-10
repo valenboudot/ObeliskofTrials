@@ -9,7 +9,6 @@ public static class FinishBroadcaster
     {
         var props = new Hashtable
         {
-            // Por jugador (no se pisan)
             [$"finish_{PhotonNetwork.LocalPlayer.ActorNumber}"] = elapsedSeconds
         };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);

@@ -8,12 +8,11 @@ using UnityEngine;
 
 public class MatchResultsUI : MonoBehaviourPunCallbacks
 {
-    [SerializeField] TextMeshProUGUI resultsText;   // arrastrá un TMP
-    readonly Dictionary<int, double> results = new(); // ActorNumber -> elapsed
+    [SerializeField] TextMeshProUGUI resultsText;  
+    readonly Dictionary<int, double> results = new();
 
     void Start()
     {
-        // Al entrar, si ya hay resultados, cargalos
         if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.CustomProperties != null)
             LoadExisting();
         Redraw();
@@ -49,7 +48,6 @@ public class MatchResultsUI : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        // si querés limpiar al irse
         results.Remove(otherPlayer.ActorNumber);
         Redraw();
     }
@@ -64,7 +62,6 @@ public class MatchResultsUI : MonoBehaviourPunCallbacks
             return;
         }
 
-        // ordenar por menor tiempo
         var lines = results
             .OrderBy(kv => kv.Value)
             .Select((kv, idx) =>
