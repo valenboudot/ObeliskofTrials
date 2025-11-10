@@ -55,6 +55,12 @@ MonoBehaviour:
   - Rpc_RequestPressButton
   - RPC_StartFreeze
   - RPC_DrawFreezeBeam
+  - RPC_SetHasIceWand
+  - RPC_SetHasJumpWand
+  - RPC_DrawJumpBeam
+  - RPC_SetPressedState
+  - Rpc_ExecutePuzzleAction
+  - RPC_MasterLoadScene
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
