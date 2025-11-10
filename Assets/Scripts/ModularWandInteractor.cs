@@ -81,6 +81,17 @@ public class ModularWandInteractor : MonoBehaviourPun
                 }
             }
         }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (hasJumpWand)
+            {
+                ActivateSelfJumpEffect();
+            }
+            if (hasIceWand)
+            {
+                ActivateSelfFreezeEffect();
+            }
+        }
     }
 
     private void ActivateFreezeEffect(PhotonView targetPV)
@@ -92,13 +103,26 @@ public class ModularWandInteractor : MonoBehaviourPun
         photonView.RPC(nameof(RPC_DrawFreezeBeam), RpcTarget.All, photonView.ViewID, targetPV.ViewID);
     }
 
+    private void ActivateSelfFreezeEffect()
+    {
+        var now = PhotonNetwork.Time;
+
+        photonView.RPC("RPC_StartFreeze", RpcTarget.All, now, freezeDuration);
+    }
+
     private void ActivateJumpEffect(PhotonView targetPV)
     {
         var now = PhotonNetwork.Time;
 
-        targetPV.RPC("RPC_StartJumpBuff", RpcTarget.All, now, jumpBuffDuration, jumpMultiplier);
+        targetPV.RPC("RPC_StartJumpBuff", RpcTarget.All, now, jumpBuffDuration, jumpMultiplier + 1);
 
         photonView.RPC(nameof(RPC_DrawJumpBeam), RpcTarget.All, photonView.ViewID, targetPV.ViewID);
+    }
+    private void ActivateSelfJumpEffect()
+    {
+        var now = PhotonNetwork.Time;
+
+        photonView.RPC("RPC_StartJumpBuff", RpcTarget.All, now, jumpBuffDuration, jumpMultiplier);
     }
 
     [PunRPC]

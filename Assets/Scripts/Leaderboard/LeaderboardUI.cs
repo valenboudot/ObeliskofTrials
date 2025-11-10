@@ -40,7 +40,7 @@ public class LeaderboardUI : MonoBehaviour
                 foreach (var item in items)
                 {
 
-                    int msNeg = item.score;                 // p.ej. -73456
+                    int msNeg = item.score;  
                     int ms = Mathf.Abs(msNeg);
                     double seconds = ms / 1000.0;
                     string timeStr = LocalRunTimer.FormatTime(seconds);
@@ -49,10 +49,7 @@ public class LeaderboardUI : MonoBehaviour
                         ? "Player " + item.player.id
                         : item.player.name;
 
-                    // Alineaciones: ,4   ,-16    ,9   (no uses ">9")
                     sb.AppendLine($"{item.rank,4}  {name,-16} {timeStr,9}");
-                    //string name = string.IsNullOrEmpty(item.player.name) ? "Player " + item.player.id : item.player.name;
-                    //sb.AppendLine($"{item.rank,4}  {name,-16} {item.score,6}");
                 }
             }
 
@@ -77,7 +74,6 @@ public class LeaderboardUI : MonoBehaviour
 
     System.Collections.IEnumerator AutoRefreshWhenReady()
     {
-        // Espera a que LootLockerBootstrap haya iniciado la sesión
         while (!LootLockerBootstrap.SessionStarted) yield return null;
         Refresh();
     }

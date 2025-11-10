@@ -7,27 +7,18 @@ using Photon.Realtime;
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     [Header("Movimiento")]
-    [Tooltip("Velocidad base en m/s")]
     public float moveSpeed = 5f;
-    [Tooltip("Multiplicador al mantener Shift")]
     public float sprintMultiplier = 1.5f;
 
     [Header("Salto / Gravedad")]
-    [Tooltip("Altura del salto en metros")]
     public float jumpHeight = 1.5f;
-    [Tooltip("Gravedad (negativa)")]
     public float gravity = -9.81f;
-    [Tooltip("Fuerza hacia abajo para mantener el contacto con el suelo")]
     public float groundedStickForce = -2f;
 
     [Header("Mouse Look")]
-    [Tooltip("Transform que rota solo en X (pitch). Suele ser un vacío que contiene la cámara")]
     public Transform cameraHolder;
-    [Tooltip("Sensibilidad del mouse")]
     public float mouseSensitivity = 2f;
-    [Tooltip("Límite de mirada vertical (grados)")]
     public float verticalLookLimit = 80f;
-    [Tooltip("Bloquear el cursor al iniciar (solo local)")]
     public bool lockCursorOnStart = true;
 
     [Header("Componentes opcionales (se desactivan en remotos)")]
@@ -35,15 +26,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public AudioListener audioListener;  
 
     [Header("Colisiones con cubos (push)")]
-    [Tooltip("Capas de objetos empujables (cubos)")]
     public LayerMask pushableLayers;
-    [Tooltip("Impulso base aplicado al chocar")]
     public float pushImpulse = 3.5f;
-    [Tooltip("Multiplica el impulso según la velocidad del jugador")]
     public AnimationCurve speedToForce = AnimationCurve.Linear(0, 0.5f, 1, 1.2f);
-    [Tooltip("Solicitar ownership del rigidbody antes de empujar (si tiene PhotonView)")]
     public bool requestOwnershipBeforePush = true;
-    [Tooltip("Evita empujar si la normal del impacto es muy vertical (techo/piso)")]
     [Range(0f, 1f)] public float maxVerticalNormalForPush = 0.5f;
 
     private CharacterController controller;

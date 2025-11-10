@@ -5,13 +5,12 @@ public class LootLockerNameSync : MonoBehaviour
 {
     void Start()
     {
-        // Intentar una vez por segundo hasta que LootLocker esté listo
         InvokeRepeating(nameof(TrySet), 0.5f, 1f);
     }
 
     void TrySet()
     {
-        if (!LootLockerBootstrap.SessionStarted) return; // espera al login de LootLocker
+        if (!LootLockerBootstrap.SessionStarted) return;
         var nick = PhotonNetwork.NickName;
         if (!string.IsNullOrEmpty(nick))
             PlayerNameHelper.SetPlayerName(nick);

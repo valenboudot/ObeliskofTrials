@@ -8,6 +8,7 @@ TagManager:
   - Bullet
   - Caja
   - cubo magico
+  - TimerText
   layers:
   - Default
   - TransparentFX

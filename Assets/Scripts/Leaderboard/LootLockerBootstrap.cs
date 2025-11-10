@@ -1,3 +1,4 @@
+using LootLocker;
 using LootLocker.Requests;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ public class LootLockerBootstrap : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        LootLockerConfig.current.allowTokenRefresh = false;
         StartGuest();
     }
 
@@ -27,6 +29,12 @@ public class LootLockerBootstrap : MonoBehaviour
             SessionStarted = true;
             Debug.Log($"[LootLocker] Guest login OK! PlayerID={response.player_id}");
         });
+    }
+
+    void OnApplicationQuit()
+    {
+        if (LootLockerBootstrap.SessionStarted)
+            LootLocker.Requests.LootLockerSDKManager.EndSession(_ => { });
     }
 }
 

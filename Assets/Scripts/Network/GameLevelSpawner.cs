@@ -16,14 +16,9 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
     private const string SPAWN_OCCUPIED_KEY = "SpawnUsed";
     private Transform[] availableSpawnPoints;
 
-    [Header("Objetos Estáticos")]
-    public GameObject wandPrefab;
-    public Transform wandSpawn;
-
     [System.Serializable]
     public class SpawnSet
     {
-        [Tooltip("Prefab a instanciar (debe estar en Assets/Resources/)")]
         public GameObject prefab;
         public List<Transform> waypoints = new List<Transform>();
         public bool onlyMaster = true;
@@ -43,6 +38,12 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
                 .Where(t => t != spawnPointsContainer.transform)
                 .ToArray();
         }
+        else
+        {
+            availableSpawnPoints = new Transform[0];
+            Debug.LogWarning("SpawnPointsContainer no está asignado. Los jugadores aparecerán en (0,0,0).");
+        }
+
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
@@ -62,7 +63,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
         if (playerPrefab != null)
         {
             Transform spawnPoint = GetRandomFreeSpawnPoint();
-            // Lógica de instanciación del playerPrefab en el spawnPoint
 
             PhotonNetwork.Instantiate(
                 playerPrefab.name,
@@ -70,30 +70,17 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
                 spawnPoint ? spawnPoint.rotation : Quaternion.identity
             );
 
-            if (spawnPoint != transform)
+            if (spawnPoint != null && spawnPoint != transform)
             {
                 int index = System.Array.IndexOf(availableSpawnPoints, spawnPoint);
-                if (index != -1) ClaimSpawnPoint(index);
+                if (index != -1)
+                {
+                    ClaimSpawnPoint(index);
+                }
             }
         }
 
-        SpawnWand();
         SpawnFromSets();
-    }
-
-    private void SpawnWand()
-    {
-        if (PhotonNetwork.IsMasterClient && wandPrefab != null)
-        {
-            if (ValidatePrefab(wandPrefab, "Wand"))
-            {
-                PhotonNetwork.InstantiateSceneObject(
-                    wandPrefab.name,
-                    wandSpawn ? wandSpawn.position : Vector3.zero,
-                    wandSpawn ? wandSpawn.rotation : Quaternion.identity
-                );
-            }
-        }
     }
 
     private void SpawnFromSets()
@@ -103,7 +90,6 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
         foreach (var set in networkSpawns)
         {
             if (set == null || set.prefab == null || set.waypoints.Count == 0) continue;
-
             if (!ValidatePrefab(set.prefab, set.prefab.name)) continue;
 
             foreach (var wp in set.waypoints)
@@ -125,10 +111,13 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "TowerEntrance")
+        if (PhotonNetwork.IsMasterClient)
         {
-            InstantiateMyCharacterAndItems();
+            Hashtable props = new Hashtable { { SPAWN_OCCUPIED_KEY, null } };
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
         }
+
+        InstantiateMyCharacterAndItems();
     }
 
     private bool ValidatePrefab(GameObject prefab, string label)
@@ -143,11 +132,68 @@ public class GameLevelSpawner : MonoBehaviourPunCallbacks
 
     private Transform GetRandomFreeSpawnPoint()
     {
-        return null;
+        if (availableSpawnPoints.Length == 0)
+        {
+            Debug.LogWarning("No hay spawn points disponibles en el container.");
+            return transform;
+        }
+
+        bool[] usedSpawns = null;
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(SPAWN_OCCUPIED_KEY, out object usedSpawnsObject))
+        {
+            usedSpawns = usedSpawnsObject as bool[];
+        }
+
+        List<Transform> freeSpawns = new List<Transform>();
+        for (int i = 0; i < availableSpawnPoints.Length; i++)
+        {
+            bool isUsed = usedSpawns != null && i < usedSpawns.Length && usedSpawns[i];
+
+            if (!isUsed)
+            {
+                freeSpawns.Add(availableSpawnPoints[i]);
+            }
+        }
+
+        if (freeSpawns.Count > 0)
+        {
+            return freeSpawns[Random.Range(0, freeSpawns.Count)];
+        }
+        else
+        {
+            return availableSpawnPoints[Random.Range(0, availableSpawnPoints.Length)];
+        }
     }
 
     private void ClaimSpawnPoint(int index)
     {
+        if (index < 0 || index >= availableSpawnPoints.Length) return;
 
+        Hashtable propertiesToSet = new Hashtable();
+        Hashtable expectedProperties = new Hashtable();
+
+        bool[] currentUsedSpawns;
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(SPAWN_OCCUPIED_KEY, out object currentSpawnsObj))
+        {
+            currentUsedSpawns = currentSpawnsObj as bool[];
+            if (currentUsedSpawns == null || currentUsedSpawns.Length != availableSpawnPoints.Length)
+            {
+                currentUsedSpawns = new bool[availableSpawnPoints.Length];
+            }
+        }
+        else
+        {
+            currentUsedSpawns = new bool[availableSpawnPoints.Length];
+        }
+
+        expectedProperties[SPAWN_OCCUPIED_KEY] = currentUsedSpawns;
+
+        bool[] newUsedSpawns = new bool[availableSpawnPoints.Length];
+        currentUsedSpawns.CopyTo(newUsedSpawns, 0);
+        newUsedSpawns[index] = true;
+
+        propertiesToSet[SPAWN_OCCUPIED_KEY] = newUsedSpawns;
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(propertiesToSet, expectedProperties);
     }
 }

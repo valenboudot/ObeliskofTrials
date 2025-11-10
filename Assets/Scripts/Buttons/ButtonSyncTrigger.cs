@@ -3,26 +3,31 @@ using System;
 using System.Collections;
 using Photon.Pun;
 
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(BoxCollider))]
 public class ButtonSyncTrigger : MonoBehaviourPun
 {
-    public bool moveOnX = true;
-    public float moveDistance = 2f;
-    public float returnDelay = 1f;
+    [Header("Configuración de Interacción")]
     public KeyCode interactKey = KeyCode.E;
 
-    private Vector3 originalPosition;
+    [Header("Configuración de Animación")]
+    public string pressAnimationName = "ButtonPress";
+    public string returnAnimationName = "ButtonReturn";
+    public float pressedHoldTime = 0.5f;
+
+    private Animator animator;
+
     private bool playerInRange = false;
     private bool isMoving = false;
-
-    public event Action OnInteracted;
+    public event Action<PhotonMessageInfo> OnInteracted;
 
     private void Start()
     {
-        originalPosition = transform.position;
-        BoxCollider box = GetComponent<BoxCollider>();
-        box.isTrigger = true;
+        animator = GetComponent<Animator>();
+        GetComponent<BoxCollider>().isTrigger = true;
     }
 
+    #region Triggers de Proximidad
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -46,48 +51,64 @@ public class ButtonSyncTrigger : MonoBehaviourPun
             }
         }
     }
+    #endregion
 
+    #region Lógica de Red
     private void Update()
     {
         if (playerInRange && !isMoving && Input.GetKeyDown(interactKey))
         {
-            photonView.RPC("Rpc_RequestPressButton", RpcTarget.MasterClient);
+            photonView.RPC(nameof(Rpc_RequestPressButton), RpcTarget.MasterClient);
+
+            StartCoroutine(AnimateButtonCoroutine());
         }
     }
 
     [PunRPC]
-    private void Rpc_RequestPressButton()
+    private void Rpc_RequestPressButton(PhotonMessageInfo info)
     {
         if (isMoving)
         {
             return;
         }
-
-        OnInteracted?.Invoke();
-
-        photonView.RPC("Rpc_AnimateButton", RpcTarget.All);
+        OnInteracted?.Invoke(info);
+        photonView.RPC(nameof(Rpc_AnimateButton), RpcTarget.All);
     }
 
     [PunRPC]
     private void Rpc_AnimateButton()
     {
+        if (isMoving) return;
         StartCoroutine(AnimateButtonCoroutine());
     }
+    #endregion
 
     private IEnumerator AnimateButtonCoroutine()
     {
         isMoving = true;
 
-        Vector3 targetPosition = originalPosition;
-        if (moveOnX)
-            targetPosition += Vector3.right * moveDistance;
+        if (animator != null)
+        {
+            animator.Play(pressAnimationName, 0, 0.0f);
+        }
         else
-            targetPosition += Vector3.forward * moveDistance;
+        {
+            Debug.LogError("¡Animator no encontrado en el botón!");
+        }
 
-        transform.position = targetPosition;
+        yield return new WaitForSeconds(pressedHoldTime);
 
-        yield return new WaitForSeconds(returnDelay);
-        transform.position = originalPosition;
+        if (animator != null)
+        {
+            animator.Play(returnAnimationName, 0, 0.0f);
+        }
+        else
+        {
+            Debug.LogError("¡Animator no encontrado en el botón!");
+        }
+
+        yield return new WaitForSeconds(pressedHoldTime);
+
         isMoving = false;
     }
 }

@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     public GameObject LobbyPanel;
     public GameObject CreatePanel;
     public GameObject JoinPanel;
+    public GameObject RankingPanel;
 
     public void PlayBotton()
     {
@@ -21,6 +22,12 @@ public class UIManager : MonoBehaviour
     public void OptionsBotton()
     {
         OptionsPanel.SetActive(true);
+        MainMenuPanel.SetActive(false);
+    }
+
+    public void RankingBotton()
+    {
+        RankingPanel.SetActive(true);
         MainMenuPanel.SetActive(false);
     }
 
@@ -66,6 +73,11 @@ public class UIManager : MonoBehaviour
         else if(Option == 3)
         {
             OptionsPanel.SetActive(false);
+            MainMenuPanel.SetActive(true);
+        }
+        else if (Option == 4)
+        {
+            RankingPanel.SetActive(false);
             MainMenuPanel.SetActive(true);
         }
     }
