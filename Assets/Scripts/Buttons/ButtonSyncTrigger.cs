@@ -93,7 +93,7 @@ public class ButtonSyncTrigger : MonoBehaviourPun
         }
         else
         {
-            Debug.LogError("¡Animator no encontrado en el botón!");
+            //Debug.LogError("¡Animator no encontrado en el botón!");
         }
 
         yield return new WaitForSeconds(pressedHoldTime);
@@ -104,7 +104,7 @@ public class ButtonSyncTrigger : MonoBehaviourPun
         }
         else
         {
-            Debug.LogError("¡Animator no encontrado en el botón!");
+            //Debug.LogError("¡Animator no encontrado en el botón!");
         }
 
         yield return new WaitForSeconds(pressedHoldTime);

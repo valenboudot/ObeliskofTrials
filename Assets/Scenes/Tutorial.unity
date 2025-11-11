@@ -2736,7 +2736,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 5493508371358950190, guid: 1db79eb2740cb1a45967e7a418bc964c, type: 3}
   spawnPointsContainer: {fileID: 988470016}
-  networkSpawns: []
+  networkSpawns:
+  - prefab: {fileID: 5207833992035977837, guid: 1ebb373fc3d9258429de8813bb4781e7, type: 3}
+    waypoints:
+    - {fileID: 2050916318}
+    onlyMaster: 1
+    amountPerWaypoint: 1
+    randomizeYaw: 0
+  - prefab: {fileID: 8533850664546784623, guid: 18494777c7ca647f4a3d76e3f7a201e5, type: 3}
+    waypoints:
+    - {fileID: 1306584600}
+    onlyMaster: 1
+    amountPerWaypoint: 1
+    randomizeYaw: 0
+  - prefab: {fileID: 324156297299244416, guid: 1ac9b1245f84b5c439fcc80375775d58, type: 3}
+    waypoints:
+    - {fileID: 455959943}
+    onlyMaster: 1
+    amountPerWaypoint: 1
+    randomizeYaw: 0
 --- !u!114 &1044867108
 MonoBehaviour:
   m_ObjectHideFlags: 0
