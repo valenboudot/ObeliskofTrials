@@ -39,7 +39,7 @@ public class DisconnectHandler : MonoBehaviourPunCallbacks
 
         if (disconnectMessageText != null)
         {
-            disconnectMessageText.text = $"Se perdió la conexión:\n{cause}";
+            disconnectMessageText.text = $"Se perdió la conexión:\n{cause} y boludo";
         }
     }
 

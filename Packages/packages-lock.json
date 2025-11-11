@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.lootlocker.lootlockersdk": {
-      "version": "https://github.com/lootlocker/unity-sdk.git",
+      "version": "6.4.0",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {},
-      "hash": "0de53d161ff18501cfb0f2868867c908fba46ffd"
+      "url": "https://package.openupm.com"
     },
     "com.unity.collab-proxy": {
       "version": "2.3.1",

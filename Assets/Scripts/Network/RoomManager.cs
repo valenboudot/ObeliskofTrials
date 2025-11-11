@@ -18,7 +18,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public GameObject PlaseWaitText;
 
     // --- UI Lista de Jugadores ---
-    public RectTransform PlayerListContent;
+    public RectTransform PlayerListContent; // El panel vacío que contendrá los nombres
     public GameObject PlayerListItemPrefab;
     private Dictionary<int, GameObject> playerListItems = new Dictionary<int, GameObject>();
 
@@ -69,14 +69,14 @@ public class RoomManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            //Debug.LogWarning("Codigo invalido.");
+            Debug.LogWarning("Codigo invalido.");
             StartCoroutine(ShowWarningTemporarily(3f, InvalidCodeText));
         }
     }
 
     public override void OnJoinedRoom()
     {
-        //Debug.Log($"¡Entraste a la sala: {PhotonNetwork.CurrentRoom.Name}!");
+        Debug.Log($"¡Entraste a la sala: {PhotonNetwork.CurrentRoom.Name}!");
 
         CreatedLobbyPanel.SetActive(true);
 
@@ -94,13 +94,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        //Debug.Log($"{newPlayer.NickName} se ha unido a la sala.");
+        Debug.Log($"{newPlayer.NickName} se ha unido a la sala.");
         UpdatePlayerList();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        //Debug.Log($"{otherPlayer.NickName} ha abandonado la sala.");
+        Debug.Log($"{otherPlayer.NickName} ha abandonado la sala.");
         UpdatePlayerList();
     }
 
@@ -117,13 +117,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
             if (PhotonNetwork.CurrentRoom.PlayerCount >= 1)
             {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
-                //Debug.Log("Sala cerrada perras.");
+                Debug.Log("Sala cerrada perras.");
 
                 PhotonNetwork.LoadLevel(GAME_SCENE);
             }
             else
             {
-                //Debug.LogWarning("Necesitas al menos 2 jugadores para empezar.");
+                Debug.LogWarning("Necesitas al menos 2 jugadores para empezar.");
                 StartCoroutine(ShowWarningTemporarily(2f, LowNumberOfPlayersText));
             }
         }
@@ -137,13 +137,13 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public void CopyRoomID()
     {
         GUIUtility.systemCopyBuffer = PhotonNetwork.CurrentRoom.Name;
-        //Debug.Log($"ID de sala copiado: {PhotonNetwork.CurrentRoom.Name}");
+        Debug.Log($"ID de sala copiado: {PhotonNetwork.CurrentRoom.Name}");
         StartCoroutine(ShowWarningTemporarily(1f, CopiedText));
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        //Debug.LogWarning($"Fallo al unirse a la sala (Código: {returnCode}): {message}");
+        Debug.LogWarning($"Fallo al unirse a la sala (Código: {returnCode}): {message}");
 
         StartCoroutine(ShowWarningTemporarily(3f, InvalidCodeText));
     }
