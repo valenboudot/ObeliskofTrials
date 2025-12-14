@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("Movimiento")]
     public float moveSpeed = 5f;
     public float sprintMultiplier = 1.5f;
+    public float acceleration = 5f;
 
     [Header("Salto / Gravedad")]
     public float jumpHeight = 1.5f;
@@ -33,6 +34,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Range(0f, 1f)] public float maxVerticalNormalForPush = 0.5f;
 
     private CharacterController controller;
+    private Animator animator;
     private Vector3 velocity;     
     private float pitch;
 
@@ -40,11 +42,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public bool ItsFrozen = false;
 
+    public float actualSpeed;
+    private float currentVelocityMagnitude = 0f;
+
+    public bool isMovingForward;
+    public bool isMovingBackward;
+    public bool isMovingRight;
+    public bool isMovingLeft;
+
     private bool IsGrounded => controller.isGrounded;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
 
         if (playerCamera == null && cameraHolder != null)
             playerCamera = cameraHolder.GetComponentInChildren<Camera>();
@@ -83,6 +94,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             HandleMovement();
             HandleJump();
         }
+
+        UpdateAnimator();
     }
 
     private void LateUpdate()
@@ -123,26 +136,52 @@ public class PlayerController : MonoBehaviourPunCallbacks
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
 
+        isMovingForward = moveZ > 0.1f;
+        isMovingBackward = moveZ < -0.1f;
+        isMovingRight = moveX > 0.1f;
+        isMovingLeft = moveX < -0.1f;
+
         Vector3 input = new Vector3(moveX, 0f, moveZ);
         input = Vector3.ClampMagnitude(input, 1f);
 
-        Vector3 move = transform.TransformDirection(input);
-        float speed = moveSpeed * (Input.GetKey(KeyCode.LeftShift) ? sprintMultiplier : 1f);
+        Vector3 moveDirection = transform.TransformDirection(input);
 
-        controller.Move(move * speed * Time.deltaTime);
+        float targetSpeed = 0f;
+        if (input.magnitude > 0.1f)
+        {
+            targetSpeed = moveSpeed * (Input.GetKey(KeyCode.LeftShift) ? sprintMultiplier : 1f);
+        }
+
+        currentVelocityMagnitude = Mathf.Lerp(currentVelocityMagnitude, targetSpeed, acceleration * Time.deltaTime);
+
+        actualSpeed = currentVelocityMagnitude;
+
+        Vector3 horizontalMove = new Vector3(moveDirection.x, 0, moveDirection.z).normalized * currentVelocityMagnitude;
 
         if (IsGrounded && velocity.y < 0f) velocity.y = groundedStickForce;
         else velocity.y += gravity * Time.deltaTime;
 
-        controller.Move(Vector3.up * velocity.y * Time.deltaTime);
+        Vector3 finalMove = horizontalMove;
+        finalMove.y = velocity.y;
+
+        controller.Move(finalMove * Time.deltaTime);
     }
 
     private void HandleJump()
     {
-        if (!IsGrounded) return;
-
-        if (Input.GetButtonDown("Jump"))
-            velocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
+        if (IsGrounded)
+        {
+            if (Input.GetButtonDown("Jump"))
+            {
+                animator.SetBool("Jumping", true);
+                velocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
+            }
+            animator.SetBool("InFloor", true);
+        }
+        else
+        {
+            Falling();
+        }
     }
 
     private void SetCursorLock(bool locked)
@@ -200,5 +239,47 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             currentPlatform = null;
         }
+    }
+
+    private void UpdateAnimator()
+    {
+        if (animator == null) return;
+
+        float speedY;
+        if(!isMovingForward && !isMovingBackward)
+        {
+            speedY = 0;
+        }
+        else if (isMovingForward)
+        {
+            speedY = actualSpeed;
+        }
+        else
+        {
+            speedY = -actualSpeed;
+        }
+
+        float speedX;
+        if (!isMovingRight && !isMovingLeft)
+        {
+            speedX = 0;
+        }
+        else if (isMovingRight)
+        {
+            speedX = actualSpeed;
+        }
+        else
+        {
+            speedX = -actualSpeed;
+        }
+
+        animator.SetFloat("VelX", speedX);
+        animator.SetFloat("VelY", speedY);
+    }
+
+    private void Falling()
+    {
+        animator.SetBool("Jumping", false);
+        animator.SetBool("InFloor", false);
     }
 }
