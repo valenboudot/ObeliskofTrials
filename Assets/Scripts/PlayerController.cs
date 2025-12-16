@@ -90,9 +90,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!ItsFrozen)
         {
+            if (animator.speed == 0) animator.speed = 1;
+
             HandleMouseLook();
             HandleMovement();
             HandleJump();
+        }
+        else
+        {
+            velocity = Vector3.zero;
+            animator.speed = 0;
         }
 
         UpdateAnimator();
@@ -244,6 +251,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void UpdateAnimator()
     {
         if (animator == null) return;
+        if (ItsFrozen) return;
 
         float speedY;
         if(!isMovingForward && !isMovingBackward)
